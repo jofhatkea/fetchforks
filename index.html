@@ -13,9 +13,18 @@
             grid-gap: .5em;
         }
 
+        .working {
+            opacity: 0.2;
+        }
+
         section {
             background-color: lightblue;
             padding: .5em;
+            transition: all 0.5s;
+        }
+
+        section:hover {
+            background-color: pink;
         }
     </style>
 </head>
@@ -67,10 +76,12 @@
         })
         links[1].addEventListener("click", e => {//fork
             links.forEach(l => l.style.display = "none");
+            document.querySelector("main").classList.add("working")
             e.preventDefault();
             fetch(e.target.href).then(e => e.json()).then(data => {
                 links.forEach(l => l.style.display = "inline");
                 getData();
+                document.querySelector("main").classList.remove("working")
             })
         });
     </script>

@@ -26,12 +26,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/fork", (req, res) => {
-  cleanRepos();
-
+  //cleanRepos();
+  fork(1);
+  //fork(2);
   //
   setTimeout(() => {
-    res.json({ msg: "/getting forks" });
-  }, 10000);
+    res.json({ msg: "/getting forks" }); //TODO could i figure out when it's done?
+  }, 4000);
   //TODO force call?
   //TODO redirect?
 });
@@ -45,7 +46,7 @@ app.get("/solution/repos/:user/:kata", (req, res) => {
 
 function parse(res) {
   let data = [];
-  const repos = fs.readdirSync("repos/");
+  const repos = fs.readdirSync("repos/"); //TODO if mac has been there, there's a .DS_Store file that makes it crash
   repos.forEach((repo, repoIndex) => {
     data.push({ name: repo });
     const katas = fs
@@ -70,8 +71,8 @@ function cleanRepos() {
   exec("rm -rf repos/", (err, stdout, stderr) => {
     console.log("cleaned up");
     exec("mkdir repos/", (err, stdout, stderr) => {
-      fork(1);
-      fork(2); //TODO figure out how to get number of pages
+      //fork(1);
+      //fork(2); //TODO figure out how to get number of pages
       //TODO can i figure out when im done?
     });
   });
@@ -79,28 +80,45 @@ function cleanRepos() {
 //TODO could i do a pull once i have the repo? how do i know?
 function fork(page) {
   fetch(
-    "https://api.github.com/repos/jofhatkea/js-kata-fall-2018/forks?page=" +
+    "https://api.github.com/repos/jofhatkea/js-kata-fall-2018/forks?per_page=100&page=" +
       page
   )
-    .then(res => res.json())
+    .then(res => {
+      console.log(res.headers);
+      return res.json();
+    })
     .then(json => {
       json.forEach(repo => {
         //console.log(repo)
         let s = repo.full_name;
         s = s.split("/");
         let name = "repos/" + s[0];
-
-        exec(
-          "git clone " + repo.clone_url + " " + name,
-          (err, stdout, stderr) => {
+        if (fs.existsSync(name)) {
+          //pull
+          //console.log("pulling ", name);
+          exec(`cd ${name} && git pull`, (err, stdout, stderr) => {
             if (err) {
-              console.warn("couldn't execute " + name, err);
+              console.warn("couldn't pull " + name, err);
               return;
             }
             //console.log(`stdout: ${stdout}`);
             //console.log(`stderr: ${stderr}`);
-          }
-        );
+          });
+        } else {
+          //clone
+          //console.log("clonning ", name);
+          exec(
+            "git clone " + repo.clone_url + " " + name,
+            (err, stdout, stderr) => {
+              if (err) {
+                console.warn("couldn't execute " + name, err);
+                return;
+              }
+              //console.log(`stdout: ${stdout}`);
+              //console.log(`stderr: ${stderr}`);
+            }
+          );
+        }
       });
     });
 }
