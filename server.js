@@ -67,80 +67,47 @@ function parse(res) {
         });
       });
     });
-
-    /*repos.forEach((repo, repoIndex) =>
-      getFiles(`repos/${repo}`, repoFileList => {
-        let repoObject = { name: repo };
-        //now we have the contens of a repo
-        repoObject.katas = [];
-        let katas = repoFileList.filter(r => r.startsWith("w"));
-
-        katas.forEach(kata => {
-          getFiles(`repos/${repo}/${kata}/mysolution`, (solutionFiles, i) => {
-            repoObject.katas.push({ kata: kata, files: solutionFiles.length });
-
-            //data[repo].katas[i] = solutionFiles.length;
-            //console.log(data);
-          });
-        });
-        data.push(repoObject);
-      })
-    );
-    console.log(data);*/
   });
   setTimeout(() => {
     res.json(data);
   }, 2000);
-  /*fs.readdir("repos/", function(err, items) {
-    for (var i = 0; i < items.length; i++) {
-      //console.log(items[i]);
-      let toCheck = [];
-      fs.readdir(`repos/${items[i]}/`, (err, repoItems) => {
-        repoItems.forEach(item => {
-          if (item.startsWith("w")) {
-            toCheck.push(item);
-          }
-        });
-        console.log(toCheck);
-      });
-    }
-  });*/
 }
-function cleanRepos(){
+function cleanRepos() {
   exec("rm -rf repos/", (err, stdout, stderr) => {
     console.log("cleaned up");
     exec("mkdir repos/", (err, stdout, stderr) => {
-          fork(1);
-          fork(2);//TODO figure out how to get number of pages
+      fork(1);
+      fork(2); //TODO figure out how to get number of pages
     });
   });
 }
 
 function fork(page) {
-  
-      fetch("https://api.github.com/repos/jofhatkea/js-kata-fall-2018/forks?page="+page)
-        .then(res => res.json())
-        .then(json => {
-          json.forEach(repo => {
-            //console.log(repo)
-            let s = repo.full_name;
-            s = s.split("/");
-            let name = "repos/" + s[0];
+  fetch(
+    "https://api.github.com/repos/jofhatkea/js-kata-fall-2018/forks?page=" +
+      page
+  )
+    .then(res => res.json())
+    .then(json => {
+      json.forEach(repo => {
+        //console.log(repo)
+        let s = repo.full_name;
+        s = s.split("/");
+        let name = "repos/" + s[0];
 
-            exec(
-              "git clone " + repo.clone_url + " " + name,
-              (err, stdout, stderr) => {
-                if (err) {
-                  console.warn("couldn't execute " + name, err);
-                  return;
-                }
-                console.log(`stdout: ${stdout}`);
-                console.log(`stderr: ${stderr}`);
-              }
-            );
-          });
-        });
-   
+        exec(
+          "git clone " + repo.clone_url + " " + name,
+          (err, stdout, stderr) => {
+            if (err) {
+              console.warn("couldn't execute " + name, err);
+              return;
+            }
+            //console.log(`stdout: ${stdout}`);
+            //console.log(`stderr: ${stderr}`);
+          }
+        );
+      });
+    });
 }
 
 app.listen(app.get("port"), () => {
