@@ -13,8 +13,17 @@
             grid-gap: .5em;
         }
 
+        nav a {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
         .working {
             opacity: 0.2;
+        }
+
+        .hide {
+            display: none;
         }
 
         section {
@@ -33,6 +42,7 @@
     <nav>
         <a href="/list">Re-get data / home</a>
         <a href="/fork">Re-fork everything</a>
+        <span></span>
     </nav>
     <main></main>
     <template id="repo">
@@ -43,17 +53,20 @@
         </section>
     </template>
     <script>
+
         function getData() {
+            let highest = 0;
             document.querySelector("main").innerHTML = "";
             fetch("list")
                 .then(res => res.json())
                 .then(data => {
                     data.forEach((repo, index) => {
-                        console.log(repo);
+                        //console.log(repo);
                         const template = document.querySelector("template").content;
                         let clone = template.cloneNode(true);
                         clone.querySelector("h1").textContent = repo.name + " " + index;
                         let ul = clone.querySelector("ul");
+                        highest = repo.katas.length > highest ? repo.katas.length : highest;
                         repo.katas.forEach(solved => {
                             let li = document.createElement("li");
                             let a = document.createElement("a");
@@ -66,24 +79,69 @@
                         })
                         document.querySelector("main").appendChild(clone)
                     })
+                    clearFilters();
+                    setupFilters(highest)
                 })
         }
         getData();
-        let links = document.querySelectorAll("nav a");
-        links[0].addEventListener("click", (e) => {
-            e.preventDefault();
-            getData();
-        })
-        links[1].addEventListener("click", e => {//fork
-            links.forEach(l => l.style.display = "none");
-            document.querySelector("main").classList.add("working")
-            e.preventDefault();
-            fetch(e.target.href).then(e => e.json()).then(data => {
-                links.forEach(l => l.style.display = "inline");
+        setupOrigListeners();
+        function clearFilters() {
+            document.querySelector("nav span").innerHTML = "";
+        }
+        function setupFilters(highest) {
+            const par = document.querySelector("nav span");
+            for (let i = 0; i <= highest; i++) {
+                let a = document.createElement("a");
+                a.href = "#";
+                a.dataset.action = "filter";
+                a.dataset.count = i;
+                a.textContent = "Filter " + i;
+                par.appendChild(a)
+            }
+            setupListeners();
+        }
+        function setupOrigListeners() {
+            let links = document.querySelectorAll("nav a");
+            links[0].addEventListener("click", (e) => {
+                e.preventDefault();
                 getData();
-                document.querySelector("main").classList.remove("working")
             })
-        });
+            links[1].addEventListener("click", e => {//fork
+                links.forEach(l => l.style.display = "none");
+                document.querySelector("main").classList.add("working")
+                e.preventDefault();
+                fetch(e.target.href).then(e => e.json()).then(data => {
+                    links.forEach(l => l.style.display = "inline");
+                    getData();
+                    document.querySelector("main").classList.remove("working")
+                })
+            });
+        }
+        function setupListeners() {
+            let links = document.querySelectorAll("nav a");
+            let rest = [...links].slice(2)
+
+
+            rest.forEach(link => {
+                link.addEventListener("click", (e) => {
+                    let repos = [...document.querySelectorAll("section")];
+                    console.log(repos)
+                    const action = link.dataset.action;//not used
+                    const count = Number(link.dataset.count)
+                    //console.log(action, count)
+                    repos.forEach(r => {
+                        let lis = r.querySelectorAll("li");
+                        if (lis.length === count) {
+                            r.classList.remove("hide")
+                        } else {
+                            r.classList.add("hide")
+                        }
+                    })
+
+                })
+            });
+        }
+
     </script>
 </body>
 
