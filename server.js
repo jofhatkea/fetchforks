@@ -28,7 +28,10 @@ app.get("/", (req, res) => {
 app.get("/fork", (req, res) => {
   cleanRepos();
 
-  res.json({ msg: "/getting forks" });
+  //
+  setTimeout(() => {
+    res.json({ msg: "/getting forks" });
+  }, 10000);
   //TODO force call?
   //TODO redirect?
 });
@@ -69,6 +72,7 @@ function cleanRepos() {
     exec("mkdir repos/", (err, stdout, stderr) => {
       fork(1);
       fork(2); //TODO figure out how to get number of pages
+      //TODO can i figure out when im done?
     });
   });
 }
