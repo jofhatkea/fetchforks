@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        main {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
+            grid-gap: .5em;
+        }
+
+        section {
+            background-color: lightblue;
+            padding: .5em;
+        }
+    </style>
+</head>
+
+<body>
+    <main></main>
+    <template id="repo">
+        <section>
+            <h1>REPO</h1>
+            <h3>Solved</h3>
+            <ul></ul>
+        </section>
+    </template>
+    <script>
+        fetch("list")
+            .then(res => res.json())
+            .then(data => {
+                data.forEach((repo, index) => {
+                    console.log(repo);
+                    const template = document.querySelector("template").content;
+                    let clone = template.cloneNode(true);
+                    clone.querySelector("h1").textContent = repo.name + " " + index;
+                    let ul = clone.querySelector("ul");
+                    repo.katas.forEach(solved => {
+                        let li = document.createElement("li");
+                        let a = document.createElement("a");
+                        //a.href = `solution/repos/${repo.name}/${solved.kata}`;
+                        a.href = `https://github.com/${repo.name}/js-kata-fall-2018/tree/master/${solved.kata}/mysolution`
+                        a.target = "_blank";
+                        a.textContent = solved.kata
+                        li.appendChild(a);
+                        ul.appendChild(li);
+                    })
+                    document.querySelector("main").appendChild(clone)
+                })
+            })
+    </script>
+</body>
+
+</html>

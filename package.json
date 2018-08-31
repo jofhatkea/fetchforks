@@ -1,0 +1,23 @@
+{
+  "name": "fetchforks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "show": "live-server --open=repos",
+    "sass": "node-sass style.scss out.css -w"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "node": "^10.9.0",
+    "node-fetch": "^2.1.2",
+    "server.js": "^1.0.0"
+  },
+  "devDependencies": {
+    "node-sass": "^4.9.0"
+  }
+}
