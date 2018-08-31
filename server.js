@@ -1,5 +1,5 @@
 const fetch = require("node-fetch");
-var fs = require("fs");
+const fs = require("fs");
 const { exec } = require("child_process");
 const express = require("express");
 const app = express();
@@ -27,6 +27,7 @@ app.get("/", (req, res) => {
 
 app.get("/fork", (req, res) => {
   cleanRepos();
+
   res.json({ msg: "/getting forks" });
   //TODO force call?
   //TODO redirect?
@@ -38,40 +39,30 @@ app.get("/solution/repos/:user/:kata", (req, res) => {
   //TODO show files directly
   console.log(req.params.user, req.params.kata);
 });
-//TODO asyn /await
-function getFiles(path, callback) {
-  fs.readdir(path, function(err, items) {
-    callback(items);
-  });
-}
 
 function parse(res) {
   let data = [];
-  getFiles("repos/", repos => {
-    repos.forEach((repo, repoIndex) => {
-      data.push({ name: repo });
-      getFiles(`repos/${repo}`, filesInRepo => {
-        let katas = filesInRepo.filter(r => r.startsWith("w"));
-        data[repoIndex].katas = [];
-        katas.forEach((kata, kataIndex) => {
-          getFiles(`repos/${repo}/${kata}/mysolution`, files => {
-            //console.log(files.length);
-            if (files.length > 1) {
-              data[repoIndex].katas.push({
-                kata: kata,
-                fileCount: files.length
-              });
-              //console.log(data);
-            }
-          });
+  const repos = fs.readdirSync("repos/");
+  repos.forEach((repo, repoIndex) => {
+    data.push({ name: repo });
+    const katas = fs
+      .readdirSync(`repos/${repo}`)
+      .filter(r => r.startsWith("w"));
+    data[repoIndex].katas = [];
+    katas.forEach((kata, kataIndex) => {
+      const files = fs.readdirSync(`repos/${repo}/${kata}/mysolution`);
+      if (files.length > 1) {
+        data[repoIndex].katas.push({
+          kata: kata,
+          fileCount: files.length
         });
-      });
+        //console.log(data);
+      }
     });
   });
-  setTimeout(() => {
-    res.json(data);
-  }, 2000);
+  res.json(data);
 }
+
 function cleanRepos() {
   exec("rm -rf repos/", (err, stdout, stderr) => {
     console.log("cleaned up");
@@ -81,7 +72,7 @@ function cleanRepos() {
     });
   });
 }
-
+//TODO could i do a pull once i have the repo? how do i know?
 function fork(page) {
   fetch(
     "https://api.github.com/repos/jofhatkea/js-kata-fall-2018/forks?page=" +
