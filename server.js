@@ -54,14 +54,19 @@ function parse(res) {
       .filter(r => r.startsWith("w"));
     data[repoIndex].katas = [];
     katas.forEach((kata, kataIndex) => {
-      const files = fs.readdirSync(`repos/${repo}/${kata}/mysolution`);
-      if (files.length > 1) {
-        data[repoIndex].katas.push({
-          kata: kata,
-          fileCount: files.length
-        });
-        //console.log(data);
+      try {
+        const files = fs.readdirSync(`repos/${repo}/${kata}/mysolution`);
+        if (files.length > 1) {
+          data[repoIndex].katas.push({
+            kata: kata,
+            fileCount: files.length
+          });
+          //console.log(data);
+        }
+      } catch(e){
+        console.warn(e)
       }
+      
     });
   });
   res.json(data);
@@ -77,7 +82,7 @@ function cleanRepos() {
     });
   });
 }
-//TODO could i do a pull once i have the repo? how do i know?
+
 function fork(page) {
   fetch(
     "https://api.github.com/repos/jofhatkea/js-kata-fall-2018/forks?per_page=100&page=" +
