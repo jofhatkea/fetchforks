@@ -6,18 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "show": "live-server --open=repos",
-    "sass": "node-sass style.scss out.css -w"
+    "show": "live-server --open=repos"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.3",
-    "node": "^10.9.0",
-    "node-fetch": "^2.1.2",
+    "node": "^10.10.0",
+    "node-fetch": "^2.2.0",
     "server.js": "^1.0.0"
-  },
-  "devDependencies": {
-    "node-sass": "^4.9.0"
   }
 }
